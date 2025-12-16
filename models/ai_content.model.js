@@ -51,7 +51,7 @@ const ContentPlanning = sequelize.define(
         },
 
         search_intent: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.TEXT('long'),
         },
 
         outline_result: {

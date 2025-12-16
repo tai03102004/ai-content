@@ -76,7 +76,7 @@ class AiContentController {
 
             // Lưu kết quả
             await project.update({
-                searchIntentAnalysis,
+                search_intent: searchIntentAnalysis,
                 status: 'search_intent_analyzed',
                 processingCompletedAt: new Date()
             });
@@ -89,7 +89,7 @@ class AiContentController {
                 data: {
                     projectId: project.id,
                     mainKeyword: project.main_keyword,
-                    searchIntentAnalysis: searchIntentAnalysis,
+                    search_intent: searchIntentAnalysis,
                     status: project.status
                 }
             });
