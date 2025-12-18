@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +18,13 @@
     "sequelize": "^6.37.7"
   },
   "dependencies": {
+    "@langchain/core": "^1.1.6",
+    "@langchain/langgraph": "^1.0.5",
+    "@langchain/openai": "^1.2.0",
     "axios": "^1.13.2",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "eventsource": "^4.1.0",
+    "node-fetch": "^3.3.2",
+    "unsplash-js": "^7.0.20"
   }
 }

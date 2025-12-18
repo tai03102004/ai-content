@@ -54,6 +54,10 @@ const ContentPlanning = sequelize.define(
             type: DataTypes.TEXT('long'),
         },
 
+        competitor_analysis: {
+            type: DataTypes.TEXT('long'),
+        },
+
         outline_result: {
             type: DataTypes.TEXT('long'),
         },

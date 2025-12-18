@@ -5,8 +5,11 @@ const aiContentController = require('../controllers/ai_content.controller');
 // Tạo project mới
 router.post('/projects', aiContentController.createProject.bind(aiContentController));
 
-// Phân tích Search Intent
-router.post('/projects/:id/search-intent', aiContentController.analyzeSearchIntent.bind(aiContentController));
+// Chạy toàn bộ workflow với LangGraph (Search Intent + Competitors + Outline + title/meta description)
+router.post('/projects/:id/run-workflow', aiContentController.runContentPlanningWorkflow.bind(aiContentController));
+
+// content
+router.post('/projects/:id/generate-content', aiContentController.generateFullContent.bind(aiContentController));
 
 // Lấy thông tin project
 router.get('/projects/:id', aiContentController.getProject.bind(aiContentController));
