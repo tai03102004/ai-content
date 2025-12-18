@@ -205,18 +205,20 @@ class AiContentController {
             });
 
             console.log(`📄 [Project ${project.id}] Generating full content...`);
+            let optimizedOutline = project.outline_result;
 
-            // Optimize outline trước
-            const optimizedOutline = await langGraphService.optimizeOutlineAgent(
-                project.outline_result, {
-                    brand_name: project.brand_name,
-                    main_keyword: project.main_keyword,
-                    lsi_keywords: project.lsi_keywords,
-                    output_language: project.output_language,
-                    muc_dich_tim_kiem: project.muc_dich_tim_kiem,
-                    search_intent: project.search_intent
-                }
-            );
+            if (!optimizedOutline) {
+                optimizedOutline = await langGraphService.optimizeOutlineAgent(
+                    project.outline_result, {
+                        brand_name: project.brand_name,
+                        main_keyword: project.main_keyword,
+                        lsi_keywords: project.lsi_keywords,
+                        output_language: project.output_language,
+                        muc_dich_tim_kiem: project.muc_dich_tim_kiem,
+                        search_intent: project.search_intent
+                    }
+                );
+            }
 
             // Generate content
             const contentWithPlaceholders = await langGraphService.generateFullContentAgent({
@@ -228,6 +230,7 @@ class AiContentController {
                 muc_dich_tim_kiem: project.muc_dich_tim_kiem,
                 search_intent: project.search_intent
             });
+
             const finalContent = await imageService.replaceImagePlaceholders(contentWithPlaceholders);
 
             await project.update({

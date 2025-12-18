@@ -8,11 +8,22 @@ const {
 
 class LangGraphAgentService {
     constructor() {
-        // Sử dụng YeScale API endpoint
+        this.contentModel = new ChatOpenAI({
+            modelName: 'gpt-5',
+            temperature: 1,
+            maxTokens: 15000,
+            timeout: 120000,
+            openAIApiKey: process.env.OPENAI_API_KEY_content,
+            configuration: {
+                baseURL: 'https://api.yescale.io/v1',
+            }
+        });
+
         this.model = new ChatOpenAI({
             modelName: 'gpt-4.1-mini-2025-04-14',
             temperature: 1,
             maxTokens: 10000,
+            timeout: 120000,
             openAIApiKey: process.env.OPENAI_API_KEY,
             configuration: {
                 baseURL: 'https://api.yescale.io/v1'
@@ -216,57 +227,74 @@ class LangGraphAgentService {
     // Agent 5 - Generate Full Content (TỐI ƯU)
     async generateFullContentAgent(projectData) {
         try {
-            console.log('🤖 Agent 5: Generating Full Content with Image Placeholders...');
+            console.log('🤖 Agent 5: Generating SEO-optimized HTML Content...');
 
             const messages = [
                 new SystemMessage(
-                    `[Role]: Expert content writer specialized in SEO-optimized, engaging articles.\n\n` +
-                    `[Guidelines]: Follow Google E-E-A-T, semantic SEO, 2025 standards.\n\n` +
+                    `[Role]: Expert SEO Content Writer specialized in creating engaging, conversion-focused HTML articles.\n\n` +
+                    `[Guidelines]: Follow Google E-E-A-T, semantic SEO, Web Vitals best practices.\n\n` +
                     `[Outline]: ${projectData.outline_result}\n\n` +
                     `[Brand]: ${projectData.brand_name}\n` +
                     `[Main Keyword]: ${projectData.main_keyword}\n` +
                     `[LSI Keywords]: ${projectData.lsi_keywords}\n` +
                     `[Language]: ${projectData.output_language}\n\n` +
-                    `[CRITICAL - Image Placeholder Rules]:\n` +
-                    `1. Insert 5-8 image placeholders using EXACT format:\n` +
-                    `   <!-- IMAGE_PLACEHOLDER: "descriptive keyword for image search" -->\n\n` +
-                    `2. Place images strategically:\n` +
-                    `   - After introduction (within first 200 words)\n` +
-                    `   - Before major H2 sections\n` +
-                    `   - After complex explanations\n` +
-                    `   - Before case studies or examples\n` +
-                    `   - At natural break points\n\n` +
-                    `3. Image keywords should be:\n` +
-                    `   - Descriptive and specific (not generic)\n` +
-                    `   - Related to section content\n` +
-                    `   - 2-5 words long\n` +
-                    `   - In English (for better image search results)\n\n` +
-                    `Examples of GOOD placeholders:\n` +
-                    `   <!-- IMAGE_PLACEHOLDER: "artificial intelligence robot technology" -->\n` +
-                    `   <!-- IMAGE_PLACEHOLDER: "digital marketing analytics dashboard" -->\n` +
-                    `   <!-- IMAGE_PLACEHOLDER: "team collaboration office meeting" -->\n\n` +
-                    `Examples of BAD placeholders:\n` +
-                    `   <!-- IMAGE_PLACEHOLDER: "image" --> (too generic)\n` +
-                    `   <!-- IMAGE_PLACEHOLDER: "trí tuệ nhân tạo" --> (not in English)\n\n` +
-                    `[Task]: Write a complete, full-length article following the outline. Include compelling examples, data, and strategic image placeholders.`
+                    `[HTML Structure Requirements]:\n` +
+                    `1. Use semantic HTML5 tags: <article>, <section>, <header>, <aside>, <figure>\n` +
+                    `2. Proper heading hierarchy: <h1> → <h2> → <h3>\n` +
+                    `3. Paragraphs: <p> tags with proper spacing\n` +
+                    `4. Lists: <ul>/<ol> with <li> items\n` +
+                    `5. Important text: <strong> for keywords, <em> for emphasis\n` +
+                    `6. Links: <a href="#internal"> for internal links\n` +
+                    `7. Blockquotes: <blockquote> for expert quotes\n` +
+                    `8. Tables: <table> with proper <thead>, <tbody>\n\n` +
+                    `[SEO & Readability Rules]:\n` +
+                    `1. First paragraph (hook): 100-150 words, include main keyword\n` +
+                    `2. Paragraphs: 2-4 sentences max (50-80 words)\n` +
+                    `3. Subheadings every 250-300 words\n` +
+                    `4. Bullet points for scannability\n` +
+                    `5. Bold main keyword 2-3 times naturally\n` +
+                    `6. Add "Key Takeaways" box at start\n` +
+                    `7. Add FAQ section at end (if applicable)\n` +
+                    `8. Include CTA (Call-to-Action) buttons\n\n` +
+                    `[Image Placeholders]:\n` +
+                    `Insert 5-8 placeholders: <!-- IMAGE_PLACEHOLDER: "keyword" -->\n` +
+                    `Place after intro, before H2 sections, after complex explanations.\n\n` +
+                    `[Engagement Elements]:\n` +
+                    `- Use "you/your" to speak directly to reader\n` +
+                    `- Include actionable tips in numbered lists\n` +
+                    `- Add "Pro Tip" boxes\n` +
+                    `- Use transition words (However, Moreover, Therefore)\n` +
+                    `- Include real examples and case studies\n\n` +
+                    `[Output Format]:\n` +
+                    `Full HTML article ready to paste into WordPress/CMS.\n` +
+                    `No <!DOCTYPE>, <html>, <head>, <body> tags - just article content.\n` +
+                    `Use inline CSS for styling (portable across platforms).`
                 ),
                 new HumanMessage(
-                    `Write the complete article for: "${projectData.main_keyword}"\n\n` +
+                    `Write a complete, SEO-optimized HTML article for: "${projectData.main_keyword}"\n\n` +
+                    `Structure:\n` +
+                    `1. <article> wrapper with proper schema.org markup\n` +
+                    `2. <header> with H1 title + meta info (read time, author, date)\n` +
+                    `3. Key Takeaways box (highlighted)\n` +
+                    `4. Table of Contents (jump links)\n` +
+                    `5. Main content sections with H2/H3\n` +
+                    `6. FAQ section (if applicable)\n` +
+                    `7. Conclusion with CTA\n\n` +
                     `Requirements:\n` +
                     `✓ Expand ALL sections from outline\n` +
-                    `✓ Natural, engaging writing style\n` +
-                    `✓ Real examples, case studies, 2025 data\n` +
-                    `✓ 5-8 strategic image placeholders\n` +
-                    `✓ Smooth transitions between sections\n` +
+                    `✓ Conversational, engaging tone\n` +
+                    `✓ Real examples, 2025 data, case studies\n` +
+                    `✓ 5-8 image placeholders\n` +
+                    `✓ Internal linking opportunities (use # placeholders)\n` +
                     `✓ Output in ${projectData.output_language}\n` +
-                    `✓ Markdown format\n\n` +
-                    `DO NOT explain the placeholders, just include them in the content naturally.`
+                    `✓ Ready for WordPress/CMS paste\n\n` +
+                    `Remember: Write for humans first, search engines second!`
                 )
             ];
 
-            const response = await this.model.invoke(messages);
+            const response = await this.contentModel.invoke(messages);
 
-            console.log('✅ Agent 5: Content with placeholders generated');
+            console.log('✅ Agent 5: HTML content generated');
             return response.content;
 
         } catch (error) {

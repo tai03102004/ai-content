@@ -64,10 +64,8 @@ class ImageService {
         };
     }
 
-    // Replace placeholders với real images
     async replaceImagePlaceholders(content) {
         try {
-            // Pattern: <!-- IMAGE_PLACEHOLDER: "keyword" -->
             const pattern = /<!-- IMAGE_PLACEHOLDER:\s*"([^"]+)"\s*-->/g;
             const matches = [...content.matchAll(pattern)];
 
@@ -85,13 +83,25 @@ class ImageService {
                 console.log(`  [${i+1}/${matches.length}] Searching: "${keyword}"`);
                 const imageData = await this.searchImage(keyword);
 
-                // Generate markdown image
-                const imageMarkdown = `![${imageData.alt}](${imageData.url})\n*${imageData.credit}*`;
+                // ✨ Generate SEO-optimized HTML figure with lazy loading
+                const imageHtml = `<figure class="wp-block-image size-large" style="margin: 2em 0;">
+    <img 
+        src="${imageData.url}" 
+        alt="${imageData.alt}" 
+        loading="lazy"
+        decoding="async"
+        width="1200"
+        height="675"
+        style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+    />
+    <figcaption style="font-size: 14px; color: #666; text-align: center; margin-top: 8px; font-style: italic;">
+        Photo by <a href="${imageData.photographerUrl}" target="_blank" rel="noopener noreferrer" style="color: #0073aa; text-decoration: none;">${imageData.photographer}</a> on <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer" style="color: #0073aa; text-decoration: none;">Unsplash</a>
+    </figcaption>
+</figure>`;
 
-                // Replace placeholder
-                updatedContent = updatedContent.replace(fullMatch, imageMarkdown);
+                updatedContent = updatedContent.replace(fullMatch, imageHtml);
 
-                // Delay 1s to avoid rate limit
+                // Rate limit
                 if (i < matches.length - 1) {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
@@ -102,7 +112,7 @@ class ImageService {
 
         } catch (error) {
             console.error('❌ Error replacing images:', error.message);
-            return content; // Return original content nếu fail
+            return content;
         }
     }
 }
