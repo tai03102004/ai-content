@@ -63,99 +63,52 @@ class AdvancedOutlineService {
             // Step 4: Generate outline với AI Agent
             console.log('🤖 Step 4/4: AI Agent generating outline...');
 
-            const systemPrompt = `[role]:
-You are a Semantic SEO Expert knowledgeable about topical authority, semantic content, and Creating great Semantic SEO-friendly Content.
+            const systemPrompt = `[Role]: Senior SEO Content Strategist.
+                [Core Mission]: Transform a basic outline into a detailed, actionable blueprint that guarantees content supremacy. You follow the E-E-A-T and Helpful Content principles intrinsically.
 
-[Guidelines to Follow]:
-${guidelines.combined}
+                [Commandments for the Final Outline]:
+                1. **Hierarchy is Logical:** H1 = Core Promise. H2s = Pillars fulfilling that promise. H3s = Actionable steps or deep dives.
+                2. **MECE Principle:** Sections are Mutually Exclusive (no overlap) and Collectively Exhaustive (cover all aspects).
+                3. **Front-Load Value:** The first H2s answer the most urgent user questions.
+                4. **Methodology is Mandatory:** Every H2 must have a clear execution plan.
 
-[Information about the current outline content]:
-${cleanedOutline}
+                [Input Context]:
+                - Brand: "${projectData.brand_name}"
+                - Main Keyword: "${projectData.main_keyword}"
+                - LSI Keywords: "${projectData.lsi_keywords}"
+                - Core Search Intent: ${projectData.search_intent}
+                - Current Outline: ${cleanedOutline}
+                ${researchData ? `- Research Data: ${researchData}` : ''}`;
 
-[Search Intent of the Keywords]:
-1. The Search Intent of the keyword is: ${projectData.muc_dich_tim_kiem}
-2. Detailed search intent:
-${cleanedSearchIntent}
+            const userPrompt = `Using the input context and adhering strictly to the "Commandments," convert the provided outline into a complete, ready-to-write blueprint.
 
-[Source context of the brand]:
-1. Brand name: "${projectData.brand_name}"
-2. Main Keyword: "${projectData.main_keyword}"
-3. LSI Keywords: "${projectData.lsi_keywords}"
-
-${researchData ? `[Research Data]:\n${researchData}\n\n` : ''}
-
-[Task/Instruction]:
-Your task is to Re-optimize, adjust or develop a detailed outline based on the current outline and ensure the guidelines below.
-
-[Guidelines for the outline]:
-I/ Structure & Flow:
-- Outline proceeds from main theme ensuring contextual flow, vectors, hierarchy, and coverage
-- Must satisfy user intent
-- One H1 as central theme
-- H2 sections elaborate on H1
-- H3 breaks down H2 logically
-- Contextually coherent progression
-
-II/ Content Segmentation:
-- Main Content: >80% comprehensive coverage
-- Supplemental Content: <20% additional insights
-- Seamless contextual bridge
-
-III/ Optimization Criteria:
-- First 10 headings answer pressing questions
-- Group related headings together
-- Supplemental content includes Boolean, Definitional, Grouping, Comparative questions
-- No conclusion in outline
-
-IV/ Contextual Harmony:
-- Maintain heading hierarchy harmony
-- First and last headings interconnected via synonyms/antonyms
-- Use incremental lists where appropriate
-
-V/ Content Quality & Expertise:
-- Demonstrate high expertise and detail
-- Authoritative and credible
-- Meet user's search intent
-- Surpass competitors in depth & quality
-
-[Guidelines for the article methodology]:
-For each section/heading, provide:
-- Content format (bullet points, paragraphs, tabular)
-- Estimated words
-- Main Ideas (content to include for context coverage)
-- Examples, data, or evidence to include
-- How this section connects to others`;
-
-            const userPrompt = `Based on the Google Helpful Content & the Checklist Outline & Article Methodology that you have been provided in the MCP_Checklist_Semantic_Content, I want you to create a complete outline for a blog post.
-
-Please provide a complete outline with a detailed article methodology for each section.
-
-[final reminder]:
-1. Output should be in ${projectData.output_language}
-2. The output should be in Markdown format to allow easy copy & paste to Google Docs
-3. If the outline has a list, like a 30+ checklist or 30+ benefits, try to include the full 30+ checklist in the outline or the output of it
-4. This is the year 2025
-5. The output should only contain the outline & article methodology of the blog post/content
-
-[Example output structure]:
-# [Main Title with H1]
-
-[Introduction section with article methodology]
-
-## [H2 Section Title]
-
-**Article Methodology:**
-- Content format: Paragraphs + bullet points
-- Estimated words: 250-300
-- Main ideas: [specific ideas]
-- Examples/data: [specific examples]
-- Connection: Links to next section about...
-
-### [H3 Subsection]
-### [H3 Subsection]
-
-## [H2 Section Title]
-...`;
+                **Output Instructions:**
+                1. **Language:** ${projectData.output_language}.
+                2. **Format:** Markdown.
+                3. **Year:** 2025.
+                
+                **Final Output Must Have This Exact Structure:**
+                
+                # [H1: Final, Engaging Title]
+                
+                *(Brief 2-3 line introduction describing the article's scope and core value.)*
+                
+                ## [H2 1: First Pillar Section]
+                **Article Methodology:**
+                - **Content Format:** (e.g., Step-by-step numbered list, Comparative table, Narrative case study, Pros/Cons breakdown)
+                - **Estimated Words:** (e.g., 300-400)
+                - **Core Ideas to Cover:** (List 3-5 specific points, data points, or examples. Be concrete.)
+                - **Connection to Intent:** (Explain how this directly addresses part of the search intent: "${projectData.search_intent}")
+                - **Internal Link/CTA Opportunity:** (Suggest where to link to another article or add a call-to-action)
+                
+                ### [H3 1.1: Specific Sub-topic]
+                ### [H3 1.2: Specific Sub-topic]
+                
+                ## [H2 2: Second Pillar Section]
+                **Article Methodology:**
+                ... (Repeat for all H2 sections)
+                
+                **[Important:** Do not write a "Conclusion" section in this outline. The final section should be a substantive H2.]`;
 
             const messages = [
                 new SystemMessage(systemPrompt),

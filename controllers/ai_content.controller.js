@@ -108,7 +108,8 @@ class AiContentController {
             const basicOutline = await langGraphService.createOutlineAgent(
                 searchIntent,
                 competitorAnalysis,
-                project.output_language
+                project.output_language,
+                project.main_keyword,
             );
 
             // Step 4: Generate Advanced Outline

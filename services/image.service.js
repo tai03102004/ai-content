@@ -66,7 +66,7 @@ class ImageService {
 
     async replaceImagePlaceholders(content) {
         try {
-            const pattern = /<!-- IMAGE_PLACEHOLDER:\s*"([^"]+)"\s*-->/g;
+            const pattern = /<!-- IMAGE:\s*"([^"]+)"\s*-->/g;
             const matches = [...content.matchAll(pattern)];
 
             if (matches.length === 0) {
