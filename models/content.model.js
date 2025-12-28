@@ -94,6 +94,25 @@ const ContentModel = sequelize.define(
         outline_used: {
             type: DataTypes.TEXT,
             comment: 'Final outline used for content generation'
+        },
+
+        content_html: {
+            type: DataTypes.TEXT('long'),
+            comment: 'Final HTML content'
+        },
+
+        word_count: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        },
+        image_count: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        },
+
+        status: {
+            type: DataTypes.ENUM('draft', 'generating', 'completed', 'failed'),
+            defaultValue: 'draft'
         }
 
     }, {
