@@ -3,8 +3,6 @@ var express = require('express');
 var app = express();
 var sequelize = require('./dbs/database');
 
-const aiRouter = require("./routes/ai_content.route")
-
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({
@@ -14,7 +12,8 @@ app.use(express.urlencoded({
 sequelize;
 
 // Routes
-app.use('/api/ai-content', aiRouter);
+app.use('/api/outlines', require('./routes/outline.routes'));
+app.use('/api/contents', require('./routes/content.routes'));
 
 app.get('/', function (req, res) {
     res.json({
