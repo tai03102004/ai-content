@@ -1,8 +1,11 @@
 const { ChatOpenAI } = require('@langchain/openai');
 const { HumanMessage, SystemMessage } = require('@langchain/core/messages');
+const axios = require('axios');
 
 class AIService {
     constructor() {
+
+        this.ragServiceUrl = process.env.RAG_SERVICE_URL || 'http://localhost:5001';
         // Primary model
         this.model = new ChatOpenAI({
             modelName: 'gpt-4.1-mini-2025-04-14',
@@ -28,18 +31,54 @@ class AIService {
         });
     }
 
+    async getRagContext(query, queryType = 'general', numResults = 5) {
+        try {
+            console.log(`📚 Fetching RAG context for: "${query}"`);
+            
+            const response = await axios.post(`${this.ragServiceUrl}/retrieve`, {
+                query,
+                query_type: queryType,
+                num_results: numResults,
+                use_hyde: true  
+            });
+
+            if (response.data.success) {
+                console.log(`✅ RAG retrieved ${response.data.num_docs} documents\n`);
+                return response.data.raw_context;  
+            } else {
+                console.warn('⚠️  RAG retrieval failed, proceeding without context');
+                return null;
+            }
+        } catch (error) {
+            console.error(`❌ RAG Service error: ${error.message}`);
+            return null;  
+        }
+    }
+
     // ✅ Agent 1: Search Intent + Research (Combined)
     async analyzeSearchIntent(params) {
         const { primary_keyword, semantic_keywords, output_language } = params;
         
         console.log('🤖 Agent 1: Analyzing Search Intent + Real-time Research...');
 
+        const ragContext = await this.getRagContext(
+            `Search intent analysis for: ${primary_keyword}`,
+            'research',  // ← queryType: 'research' for statistics & insights
+            5
+        );
+
+        const systemPrompt = ragContext 
+            ? `[ROLE]: Senior Search Intent Analyst & SEO Researcher\n` +
+              `[MISSION]: Conduct comprehensive search intent analysis using PROVIDED REAL DATA\n` +
+              `[DATA]: Here's actual research data:\n\n${ragContext}\n\n` +
+              `[INSTRUCTION]: Output structured Markdown, cite the provided data`
+            : `[ROLE]: Senior Search Intent Analyst & SEO Researcher\n` +
+              `[MISSION]: Conduct comprehensive search intent analysis\n` +
+              `[INSTRUCTION]: Output structured Markdown`;
+
+
         const messages = [
-            new SystemMessage(
-                `[ROLE]: Senior Search Intent Analyst & SEO Researcher\n` +
-                `[MISSION]: Conduct comprehensive search intent analysis using REAL 2025 data and research\n` +
-                `[INSTRUCTION]: Output structured Markdown with clear sections`
-            ),
+            new SystemMessage(systemPrompt),
             new HumanMessage(
                 `Analyze search intent for: **"${primary_keyword}"**\n` +
                 `Related terms: ${semantic_keywords}\n\n` +
@@ -60,7 +99,8 @@ class AIService {
                 `- Essential subtopics to cover (8-10 topics)\n` +
                 `- Related entities/concepts\n` +
                 `- Semantic keywords to integrate\n\n` +
-                `### 5. 2025 Trends & Data Points\n` +
+                `### 5. Real Data Points & Trends\n` +
+                `${ragContext ? `- Use the provided research data to support analysis\n` : ``}` +
                 `- Latest industry trends relevant to "${primary_keyword}"\n` +
                 `- Current statistics/data (use 2025 context)\n` +
                 `- Emerging best practices\n\n` +
@@ -79,12 +119,24 @@ class AIService {
         
         console.log('🤖 Agent 2: Analyzing Top Competitors...');
 
+        const ragContext = await this.getRagContext(
+            `Competitor analysis for: ${primary_keyword}`,
+            'content', 
+            7
+        );
+
+        const systemPrompt = ragContext
+            ? `[ROLE]: SEO Competitive Intelligence Analyst\n` +
+              `[CONTEXT]: User search intent: ${search_intent.substring(0, 300)}\n` +
+              `[COMPETITOR DATA]: ${ragContext}\n\n` +
+              `[INSTRUCTION]: Use provided data to identify gaps and opportunities`
+            : `[ROLE]: SEO Competitive Intelligence Analyst\n` +
+              `[CONTEXT]: User search intent: ${search_intent.substring(0, 500)}\n` +
+              `[INSTRUCTION]: Critical, strategic analysis in Markdown`;
+
+
         const messages = [
-            new SystemMessage(
-                `[ROLE]: SEO Competitive Intelligence Analyst\n` +
-                `[CONTEXT]: User search intent: ${search_intent.substring(0, 500)}\n` +
-                `[INSTRUCTION]: Critical, strategic analysis in Markdown`
-            ),
+            new SystemMessage(systemPrompt),
             new HumanMessage(
                 `Analyze top competitor content for: **"${primary_keyword}"**\n\n` +
                 `**COMPETITIVE ANALYSIS FRAMEWORK:**\n\n` +
@@ -132,11 +184,25 @@ class AIService {
         
         console.log('🤖 Agent 3: Creating Production-Ready Outline...');
 
+        const ragContext = await this.getRagContext(
+            `Best structure and outline for: ${primary_keyword}`,
+            'outline',  
+            5
+        );
+
+        const systemPrompt = ragContext
+            ? `[ROLE]: Senior SEO Content Architect\n` +
+              `[MISSION]: Create battle-ready outline using PROVIDED REAL CONTENT DATA\n` +
+              `[REFERENCE_DATA]:\n${ragContext}\n\n` +
+              `[PRINCIPLES]: Google E-E-A-T, Helpful Content, Topical Authority\n` +
+              `[INSTRUCTION]: Use provided data as reference for section structure\n\n`
+            : `[ROLE]: Senior SEO Content Architect\n` +
+              `[MISSION]: Create a battle-ready outline that guarantees search dominance\n` +
+              `[PRINCIPLES]: Google E-E-A-T, Helpful Content, Topical Authority\n`;
+
         const messages = [
             new SystemMessage(
-                `[ROLE]: Senior SEO Content Architect\n` +
-                `[MISSION]: Create a battle-ready outline that guarantees search dominance\n` +
-                `[PRINCIPLES]: Google E-E-A-T, Helpful Content, Topical Authority\n\n` +
+                systemPrompt +
                 `[INPUTS]:\n` +
                 `- Target Keyword: "${primary_keyword}"\n` +
                 `- Article Type: ${article_type || 'Guide'}\n` +
@@ -208,10 +274,27 @@ class AIService {
         
         console.log('🤖 Agent 4: Generating SEO-Optimized HTML Content...');
 
+        const ragContext = await this.getRagContext(
+            `Detailed content and examples for: ${primary_keyword}`,
+            'content',  // ← queryType: 'content' for detailed explanations
+            7
+        );
+
+        const systemPrompt = ragContext
+            ? `[ROLE]: Expert SEO Content Writer & HTML Specialist\n` +
+              `[GOAL]: Create HTML scoring 90+/100 on SEO analyzers\n` +
+              `[REFERENCE_CONTENT]:\n${ragContext}\n\n` +
+              `[INSTRUCTIONS]: \n` +
+              `1. Use provided reference content for accurate data & examples\n` +
+              `2. Cite or paraphrase the reference when using specific information\n` +
+              `3. Maintain ${target_word_count || 2000} word count\n`
+            : `[ROLE]: Expert SEO Content Writer & HTML Specialist\n` +
+              `[GOAL]: Create HTML scoring 90+/100 on SEO analyzers\n`;
+
+
         const messages = [
             new SystemMessage(
-                `[ROLE]: Expert SEO Content Writer & HTML Specialist\n` +
-                `[GOAL]: Create HTML scoring 90+/100 on SEO analyzers\n` +
+                systemPrompt +
                 `[TONE]: ${tone_of_voice_id || 'Professional'}\n` +
                 `[TYPE]: ${article_type || 'Guide'}\n` +
                 `[TARGET]: ${target_word_count || 2000} words`
@@ -242,7 +325,7 @@ class AIService {
                 `7. Conclusion with keyword\n\n` +
                 `### 4. IMAGES (5-7 required)\n` +
                 `<figure style="margin: 25px 0; text-align: center;">\n` +
-                `  <img src="https://images.unsplash.com/photo-[UNIQUE-ID]?w=1200" \n` +
+                `  <img src="[image-url]" \n` +
                 `       alt="[2 images MUST have '${primary_keyword}' in alt]" \n` +
                 `       loading="lazy">\n` +
                 `  <figcaption>Caption</figcaption>\n` +
@@ -263,7 +346,7 @@ class AIService {
         return response.content;
     }
 
-    // ✅ Quick: Generate Title + Meta
+    // Generate Title + Meta
     async generateTitleMeta(params) {
         const { primary_keyword, semantic_keywords, search_intent, output_language } = params;
         

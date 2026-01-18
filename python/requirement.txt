@@ -1,0 +1,15 @@
+streamlit
+pdfplumber
+ollama
+langchain
+langchain-community
+langchain-ollama
+langchain-openai
+langchain-core
+chromadb
+docling
+pypdfium2
+torch
+flask
+flask_cors
+openai
