@@ -1,12 +1,61 @@
+# version: '3.9'
+
+# services:
+#   # 1. Database Vector (Qdrant) 
+#   qdrant:
+#     image: qdrant/qdrant:latest
+#     container_name: qdrant_vectordb
+#     restart: always
+#     ports:
+#       - "6333:6333" # HTTP Port (Dùng cho Client)
+#       - "6334:6334" # gRPC Port (Hiệu năng cao)
+#     environment:
+#       # Thiết lập API Key để bảo mật (khớp với code Python)
+#       - QDRANT__SERVICE__API_KEY=Enterprise_Secret_Key_123
+#     volumes:
+#       - ./qdrant_data:/qdrant/storage:z # Lưu dữ liệu bền vững
+
+#   # 2. Ứng dụng RAG (Chứa code Python của bạn)
+#   rag-app:
+#     build: 
+#       context: .
+#       dockerfile: Dockerfile
+#     container_name: rag_backend
+#     volumes:
+#       - ./:/app              # Map code vào container để tiện sửa đổi
+#       - ./models_cache:/app/models_cache # Cache model BM25 để không phải tải lại
+#     ports:
+#       - "8501:8501" # Port cho Streamlit (nếu dùng)
+#       - "5000:5000" # Port cho Flask API
+#     environment:
+#       # Kết nối nội bộ Docker: dùng tên service "qdrant" thay vì localhost
+#       - QDRANT_URL=http://qdrant:6333 
+#       - QDRANT_API_KEY=Enterprise_Secret_Key_123
+      
+#       # Cấu hình cache model BM25 vào thư mục đã map volume
+#       - FASTEMBED_CACHE_PATH=/app/models_cache
+      
+#       # Các key khác (Nên để trong file .env cùng thư mục)
+#       - RAG_OPEN_AI=${RAG_OPEN_AI}
+#       - RAG_EMBEDDING_API_KEY=${RAG_EMBEDDING_API_KEY}
+#       - EMBEDDING_BASE_URL=https://api.yescale.io/v1
+#       - LLM_BASE_URL=https://api.yescale.io/v1
+#     depends_on:
+#       - qdrant # Đợi Qdrant chạy xong mới chạy App
+
+
 version: '3.9'
+
 services:
-  chromadb:
-    image: chromadb/chroma:latest
-    volumes:
-      - ./chroma_data:/chroma/chroma
+  # Chỉ chạy mỗi Qdrant thôi, code Python chạy ngoài
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant_local
+    restart: always
     ports:
-      - "8000:8000"
+      - "6333:6333" # Để máy thật chọc vào được qua localhost:6333
+      - "6334:6334"
     environment:
-      - IS_PERSISTENT=TRUE
-      - CHROMA_SERVER_AUTH_PROVIDER=chromadb.auth.token_auth.TokenAuthServerProvider
-      - CHROMA_SERVER_AUTH_CREDENTIALS=Serpupdate@123
+      - QDRANT__SERVICE__API_KEY=Enterprise_Secret_Key_123
+    volumes:
+      - ./qdrant_data:/qdrant/storage:z # Giữ lại dữ liệu vector dù tắt Docker

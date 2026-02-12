@@ -7,11 +7,13 @@ langchain-community
 langchain-core
 langchain-openai
 langchain-ollama
-langchain-chroma
+langchain-qdrant
+
 openai
 ollama
+qdrant-client
+fastembed
 
-chromadb
 
 docling
 pdfplumber
@@ -22,3 +24,5 @@ langchain-text-splitters
 python-dotenv
 tenacity
 torch
+redis
+pybreaker
