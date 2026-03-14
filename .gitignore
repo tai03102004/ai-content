@@ -1,3 +1,11 @@
 .env
 node_modules
 python/venv
+python/rag/seoautomation.json
+python/rag/service_account.json
+python/.env
+python/rag/implementation/test_data
+python/qdrant_data
+python/rag/implementation/__pycache__
+python/__pycache__
+python/rag_core/__pycache__

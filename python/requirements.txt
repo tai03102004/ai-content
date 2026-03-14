@@ -1,6 +1,7 @@
 flask
 flask-cors
 streamlit
+gradio
 
 langchain
 langchain-community
@@ -8,21 +9,27 @@ langchain-core
 langchain-openai
 langchain-ollama
 langchain-qdrant
+langchain-text-splitters
 
 openai
+litellm
+
 ollama
 qdrant-client
+chromadb
 fastembed
-
 
 docling
 pdfplumber
 pypdfium2
 python-docx
-langchain-text-splitters 
 
 python-dotenv
 tenacity
 torch
 redis
 pybreaker
+tqdm
+
+google-api-python-client
+google-auth
