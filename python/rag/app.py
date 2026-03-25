@@ -1,7 +1,7 @@
 import gradio as gr
 from dotenv import load_dotenv
 
-from implementation.answer_v2 import answer_question
+from implementation.answer_v2 import answer_question, batch_answer_questions
 
 load_dotenv(override=True)
 
@@ -51,6 +51,31 @@ def main():
         message.submit(
             put_message_in_chatbot, inputs=[message, chatbot], outputs=[message, chatbot]
         ).then(chat, inputs=chatbot, outputs=[chatbot, context_markdown])
+
+        with gr.Tab("Batch Processing"):
+            gr.Markdown("### Batch Process Multiple Questions")
+            batch_input = gr.Textbox(
+                label="Questions (one per line)",
+                placeholder="Enter questions separated by new lines...",
+                lines=10
+            )
+            batch_output = gr.JSON(label="Results")
+            batch_btn = gr.Button("Process Batch")
+            
+            def process_batch(questions_str):
+                questions = [q.strip() for q in questions_str.split('\n') if q.strip()]
+                if not questions:
+                    return {"error": "No questions provided"}
+                
+                results = batch_answer_questions(questions, tenant_id="user_test_001")
+                formatted_results = [
+                    {"question": q, "answer": r[0], "has_context": len(r[1]) > 0}
+                    for q, r in zip(questions, results)
+                ]
+                return formatted_results
+            
+            batch_btn.click(process_batch, inputs=batch_input, outputs=batch_output)
+
 
     ui.launch(inbrowser=True, theme=theme)
 

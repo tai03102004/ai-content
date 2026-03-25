@@ -11,8 +11,12 @@ from tenacity import retry, wait_exponential, stop_after_attempt
 import re
 import hashlib
 import redis
-import pybreaker
+# import pybreaker
 from fastembed import SparseTextEmbedding
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import signal
+import threading
+
 
 # Qdrant
 from qdrant_client import QdrantClient
@@ -29,20 +33,23 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 load_dotenv(override=True)
 
-litellm._turn_on_debug()
+DEBUG_MODE = os.getenv("DEBUG_MODE", "false").lower() == "true"
+if DEBUG_MODE:
+    litellm._turn_on_debug()
+    logger.warning("⚠️  DEBUG MODE ON — API keys sẽ xuất hiện trong log!")
 
 # Embedding key
-YESCALE_API_KEY    = os.getenv("RAG_EMBEDDING_API_KEY", "")
+EMBEDDING_API_KEY    = os.getenv("RAG_EMBEDDING_API_KEY", "")
 # LLM key (Qwen3 - dùng cho rewrite, rerank, answer)
 RAG_LLM_API_KEY    = os.getenv("RAG_OPEN_AI", "")
 
 RAG_MODEL          = os.getenv("RAG_MODEL")
-REWRITE_MODEL = os.getenv("REWRITE_MODEL", "openai/gpt-4.1-nano")
+REWRITE_MODEL = os.getenv("REWRITE_MODEL")
 EMBEDDING_MODEL    = os.getenv("EMBEDDING_MODEL")
 QDRANT_URL         = os.getenv("QDRANT_URL", "http://localhost:6333")
 QDRANT_API_KEY     = os.getenv("QDRANT_API_KEY")
-EMBEDDING_BASE_URL = os.getenv("EMBEDDING_BASE_URL", "https://api.yescale.io/v1")
-LLM_BASE_URL       = os.getenv("LLM_BASE_URL", "https://api.yescale.io/v1")
+EMBEDDING_BASE_URL = os.getenv("EMBEDDING_BASE_URL")
+LLM_BASE_URL       = os.getenv("LLM_BASE_URL")
 
 
 REDIS_URL     = os.getenv("REDIS_URL", "redis://localhost:6379")
@@ -51,14 +58,17 @@ MAX_Q_LEN     = 1000
 BLOCKLISTED   = {'admin', 'config', 'system', 'root', 'drop', 'delete'}
 SUSPICIOUS    = [r'exec\(', r'eval\(', r'__import__', r'<script>', r'javascript:']
 
+BATCH_MAX_WORKERS = int(os.getenv("BATCH_MAX_WORKERS", "5"))
+QUESTION_TIMEOUT  = int(os.getenv("QUESTION_TIMEOUT", "120"))
+
 RETRIEVAL_K      = 20
 FINAL_K          = 10
 MAX_RERANK_INPUT = 20
 
-wait = wait_exponential(multiplier=1, min=4, max=60)
-stop = stop_after_attempt(5)
+wait_strategy = wait_exponential(multiplier=1, min=4, max=60)
+stop_strategy = stop_after_attempt(5)
 
-openai_client = OpenAI(base_url=EMBEDDING_BASE_URL, api_key=YESCALE_API_KEY)
+openai_client = OpenAI(base_url=EMBEDDING_BASE_URL, api_key=EMBEDDING_API_KEY)
 
 qdrant = QdrantClient(
     url=QDRANT_URL,
@@ -110,9 +120,31 @@ def set_cache(key: str, value: str):
     try: redis_client.setex(f"rag:{key}", CACHE_TTL, value)
     except: pass
 
+def batch_get_cached(keys: list[str]):
+    """Get multiple cached values at once"""
+    if not redis_client: return {}
+    try:
+        pipeline = redis_client.pipeline()
+        for key in keys:
+            pipeline.get(f"rag:{key}")
+        results = pipeline.execute()
+        return {key: result for key, result in zip(keys, results) if result is not None}
+    except: return {}
+
+def batch_set_cache(data: dict[str, str]):
+    """Set multiple cached values at once"""
+    if not redis_client: return
+    try:
+        pipeline = redis_client.pipeline()
+        for key, value in data.items():
+            pipeline.setex(f"rag:{key}", CACHE_TTL, value)
+        pipeline.execute()
+    except: pass
+
 # --- Circuit Breaker
 
-api_breaker = pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60)
+# llm_breaker   = pybreaker.CircuitBreaker(fail_max=20, reset_timeout=15)
+# embed_breaker = pybreaker.CircuitBreaker(fail_max=20, reset_timeout=15)
 # --- Input Validation
 def validate_question(q: str) -> tuple[bool, str]:
     if not q or len(q.strip()) < 2:
@@ -138,24 +170,27 @@ def make_cache_key(question: str, tenant_id: str) -> str:
 
 # ── Qdrant helpers ────────────────────────────────────────────────────────────
 _collection_cache: set[str] = set()
-
+_collection_lock = threading.Lock()
 def collection_exists(tenant_id: str) -> bool:
     col = safe_collection_name(tenant_id)
     if col in _collection_cache:
         return True
-    existing = {c.name for c in qdrant.get_collections().collections}
-    if col in existing:
-        _collection_cache.add(col)
-        return True
+    with _collection_lock:
+        if col in _collection_cache:  
+            return True
+        existing = {c.name for c in qdrant.get_collections().collections}
+        if col in existing:
+            _collection_cache.add(col)
+            return True
     return False
 
 
-@retry(wait=wait, stop=stop)
-@api_breaker
+@retry(wait=wait_strategy, stop=stop_strategy)
+# @embed_breaker
 def embed(text: str) -> list[float]:
-    # Dùng YESCALE_API_KEY (embedding key)
+    # Dùng EMBEDDING_API_KEY (embedding key)
     return openai_client.embeddings.create(
-        model=EMBEDDING_MODEL, input=[text]
+        model=EMBEDDING_MODEL, input=[text], dimensions=1024, 
     ).data[0].embedding
 
 def fetch_context_unranked(
@@ -212,8 +247,8 @@ def fetch_context_unranked(
     ]
 
 
-@retry(wait=wait, stop=stop)
-@api_breaker  
+@retry(wait=wait_strategy, stop=stop_strategy)
+# @llm_breaker
 def rerank(question, chunks):
     # Dùng RAG_LLM_API_KEY (Qwen3 key)
     system_prompt = """
@@ -241,6 +276,7 @@ Reply only with the list of ranked chunk ids, nothing else. Include all the chun
         response_format=RankOrder,
         api_key=RAG_LLM_API_KEY, 
         api_base=LLM_BASE_URL,
+        max_retries=3,
     )
     reply = response.choices[0].message.content
     order = RankOrder.model_validate_json(reply).order
@@ -264,8 +300,8 @@ def make_rag_messages(question: str, history: list[dict], chunks: list[Result]) 
     )
 
 
-@retry(wait=wait, stop=stop)
-@api_breaker
+@retry(wait=wait_strategy, stop=stop_strategy)
+# @llm_breaker
 def rewrite_query(question: str, history: list[dict]) -> str:
     message = f"""
 You are in a conversation with a user, answering questions about the company Insurellm.
@@ -282,10 +318,11 @@ It should be a VERY short specific question most likely to surface content. Focu
 IMPORTANT: Respond ONLY with the precise knowledgebase query, nothing else.
 """
     response = completion(
-        model=RAG_MODEL,
+        model=REWRITE_MODEL,
         messages=[{"role": "system", "content": message}],
         api_key=RAG_LLM_API_KEY,  
         api_base=LLM_BASE_URL,
+        max_retries=3,
     )
     return response.choices[0].message.content
 
@@ -300,28 +337,28 @@ def merge_chunks(primary, secondary):
     return merged
 
 
-def fetch_context(tenant_id: str, question: str, history: list[dict]) -> list[Result]:
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        f_rewrite = executor.submit(rewrite_query, question, history)
-        f_chunks1 = executor.submit(fetch_context_unranked, tenant_id, question)
+def fetch_context(tenant_id: str, question: str, history: list[dict], skip_rewrite=False) -> list[Result]:
+    if skip_rewrite:
+        chunks = fetch_context_unranked(tenant_id, question)
+        return rerank(question, chunks[:MAX_RERANK_INPUT])[:FINAL_K]
+    
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        f_rewrite = ex.submit(rewrite_query, question, history)
+        f_chunks1 = ex.submit(fetch_context_unranked, tenant_id, question)
 
-        rewritten = f_rewrite.result()
-        f_chunks2 = executor.submit(fetch_context_unranked, tenant_id, rewritten)
+        rewritten = f_rewrite.result(timeout=QUESTION_TIMEOUT)
+        chunks1   = f_chunks1.result(timeout=QUESTION_TIMEOUT)
 
-        chunks1 = f_chunks1.result()
-        chunks2 = f_chunks2.result()
+    chunks2 = fetch_context_unranked(tenant_id, rewritten)
 
-    merged   = merge_chunks(chunks1, chunks2)
-    reranked = rerank(question, merged[:MAX_RERANK_INPUT])
-    return reranked[:FINAL_K]
-
-
-@retry(wait=wait, stop=stop) 
+    merged = merge_chunks(chunks1, chunks2)
+    return rerank(question, merged[:MAX_RERANK_INPUT])[:FINAL_K]
 def answer_question(
     question: str,
-    history: list[dict] = [],
-    tenant_id: str = "default",
+    history: list[dict] | None = None,
+    tenant_id: str = "default"
 ) -> tuple[str, list[Result]]:
+    history = history or []
     ok, err = validate_question(question)
     if not ok:
         return err, []
@@ -335,11 +372,89 @@ def answer_question(
         logger.info("🎯 Cache HIT")
         return cached, []
     
-    chunks   = fetch_context(tenant_id, question, history)
+    chunks = fetch_context(tenant_id, question, history)
     messages = make_rag_messages(question, history, chunks)
     response = completion(model=RAG_MODEL, messages=messages,
-                        api_key=RAG_LLM_API_KEY, api_base=LLM_BASE_URL)
+                        api_key=RAG_LLM_API_KEY, api_base=LLM_BASE_URL, max_retries=3)
     answer   = response.choices[0].message.content
     set_cache(cache_key, answer)
 
     return answer, chunks
+
+def batch_answer_questions(
+    questions, tenant_id="default",
+    max_workers=BATCH_MAX_WORKERS, 
+    timeout=QUESTION_TIMEOUT,   
+) -> list[tuple[str, list[Result]]]:
+    """
+    Process multiple questions concurrently
+    
+    Args:
+        questions: List of questions to process
+        tenant_id: Tenant identifier
+        max_workers: Maximum number of concurrent workers
+    
+    Returns:
+        List of tuples containing (answer, context_results) for each question
+    """
+
+    # Prepare cache keys for all questions
+    cache_keys = [make_cache_key(q, tenant_id) for q in questions]
+    
+    # Check which questions are already cached
+    cached_results = batch_get_cached(cache_keys)
+    
+    # Identify uncached questions
+    uncached_questions = []
+    uncached_indices = []
+    results = [None] * len(questions)
+    
+    for idx, (question, cache_key) in enumerate(zip(questions, cache_keys)):
+        if cache_key in cached_results:
+            # Return cached result directly
+            results[idx] = (cached_results[cache_key], [])
+        else:
+            uncached_questions.append(question)
+            uncached_indices.append(idx)
+    
+    # Process uncached questions in parallel
+    if not uncached_questions:
+        return results
+    shutdown_flag = False
+
+    with ThreadPoolExecutor(max_workers=max_workers) as batch_executor:
+        # Submit all uncached questions
+        future_to_idx = {
+            batch_executor.submit(
+                answer_question, q, [], tenant_id
+            ): idx
+            for q, idx in zip(uncached_questions, uncached_indices)
+        }
+        
+        # Collect results as they complete
+        for future in as_completed(future_to_idx):
+            if shutdown_flag:                          
+                for f in future_to_idx:
+                    f.cancel()
+                break
+            idx = future_to_idx[future]
+            try:
+                result = future.result(timeout=timeout)
+                results[idx] = result
+            except TimeoutError:
+                logger.error(f"⏰ Timeout câu {idx + 1}")
+                results[idx] = ("⏰ Câu hỏi xử lý quá lâu.", [])
+            except Exception as e:
+                logger.error(f"❌ Lỗi câu {idx + 1}: {e}")
+                results[idx] = (f"Lỗi: {str(e)}", [])
+        new_cache_data = {
+            make_cache_key(questions[idx], tenant_id): results[idx][0]
+            for idx in uncached_indices
+            if results[idx] and not results[idx][0].startswith(("⚠️", "⏰", "Lỗi"))
+        }
+        batch_set_cache(new_cache_data)
+
+    for idx, r in enumerate(results):
+        if r is None:
+            results[idx] = ("⚠️ Câu hỏi bị hủy.", [])
+    return results

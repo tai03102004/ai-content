@@ -23,16 +23,17 @@ from qdrant_client.models import (
     SparseVectorParams, SparseIndexParams,SparseVector
 )
 from fastembed import SparseTextEmbedding
+import fitz 
 
 load_dotenv(override=True)
 
 # ── Config ────────────────────────────────────────────────────────────────────
-CHUNK_MODEL        = os.getenv("CHUNK_MODEL", "openai/gpt-4.1-nano")
+CHUNK_MODEL        = os.getenv("CHUNK_MODEL", "openai/gpt-4.1-nano-2025-04-14")
 EMBEDDING_MODEL    = os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
 EMBEDDING_BASE_URL = os.getenv("EMBEDDING_BASE_URL", "https://api.yescale.io/v1")
-YESCALE_API_KEY    = os.getenv("RAG_EMBEDDING_API_KEY")
+EMBEDDING_API_KEY    = os.getenv("RAG_EMBEDDING_API_KEY")
 
-VECTOR_DIM         = 3072   # text-embedding-3-large
+VECTOR_DIM         = 1024   # text-embedding-3-large
 LLM_CHUNK_MAX      = 5_000  # dùng LLM chunk nếu doc nhỏ hơn 5000 ký tự
 CHUNK_SIZE         = 500    # rule-based fallback
 CHUNK_OVERLAP      = 100
@@ -44,10 +45,10 @@ QDRANT_URL         = os.getenv("QDRANT_URL", "http://localhost:6333")
 QDRANT_API_KEY     = os.getenv("QDRANT_API_KEY")
 # ── Clients ───────────────────────────────────────────────────────────────────
 # OpenAI client → dùng cho embedding (trỏ vào YeScale)
-openai_client = OpenAI(base_url=EMBEDDING_BASE_URL, api_key=YESCALE_API_KEY)
+openai_client = OpenAI(base_url=EMBEDDING_BASE_URL, api_key=EMBEDDING_API_KEY)
 
 # litellm → dùng cho chunking LLM (trỏ vào YeScale)
-os.environ["OPENAI_API_KEY"]  = YESCALE_API_KEY or ""
+os.environ["OPENAI_API_KEY"]  = EMBEDDING_API_KEY or ""
 os.environ["OPENAI_BASE_URL"] = EMBEDDING_BASE_URL
 
 # Qdrant client
@@ -93,7 +94,7 @@ def fetch_documents_from_folder(folder_path: str) -> list[dict]:
         print(f"  ❌ Thư mục không tồn tại: {folder_path}")
         return []
 
-    supported_ext = {".txt", ".md", ".docx"}
+    supported_ext = {".txt", ".md", ".docx", ".pdf"}
     docs = []
 
     for file in folder.rglob("*"):
@@ -103,6 +104,13 @@ def fetch_documents_from_folder(folder_path: str) -> list[dict]:
             if file.suffix.lower() == ".docx":
                 doc  = Document(file)
                 text = "\n".join(p.text for p in doc.paragraphs)
+            elif file.suffix.lower() == ".pdf":
+                # Đọc nội dung từ file PDF
+                doc_pdf = fitz.open(file)
+                text = ""
+                for page in doc_pdf:
+                    text += page.get_text()
+                doc_pdf.close()
             else:
                 text = file.read_text(encoding="utf-8", errors="replace")
 
@@ -213,8 +221,16 @@ def ensure_collection(col: str):
 
 @retry(wait=wait, stop=stop)
 def embed_batch(texts: list[str]) -> list[list[float]]:
-    resp = openai_client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
-    return [e.embedding for e in resp.data]
+    all_embeddings = []
+    for i in range(0, len(texts), 10):
+        sub_batch = texts[i:i+10]
+        resp = openai_client.embeddings.create(
+            model=EMBEDDING_MODEL,
+            input=sub_batch,
+            dimensions=1024,   
+        )
+        all_embeddings.extend([d.embedding for d in resp.data])
+    return all_embeddings
 
 def sparse_batch(texts: list[str]) -> list[dict]:
     """Tính BM25 sparse vectors cho 1 batch text."""

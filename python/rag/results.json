@@ -1,0 +1,302 @@
+[
+  {
+    "question": "1. Âm nhạc là gì và các yếu tố chính cấu thành nên âm nhạc bao gồm những yếu tố nào?",
+    "answer": "Lỗi: RetryError[<Future at 0x1165692b0 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "2. Cấu tạo cơ bản của một khuông nhạc trong hệ thống ký hiệu âm nhạc phương Tây gồm những thành phần nào?",
+    "answer": "Lỗi: RetryError[<Future at 0x1165926f0 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "3. Nhà soạn nhạc John Cage và nhà âm nhạc học Jean-Jacques Nattiez có quan điểm như thế nào về lằn ranh giữa âm nhạc và tiếng ồn?",
+    "answer": "Lỗi: RetryError[<Future at 0x1165920c0 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "4. Những nhạc cụ thời tiền sử nào đã được các nhà khảo cổ phát hiện và chúng có nguồn gốc từ đâu?",
+    "answer": "Lỗi: RetryError[<Future at 0x11656a3c0 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "5. Ở Hy Lạp cổ đại, vai trò của âm nhạc trong giáo dục và các hoạt động xã hội được thể hiện như thế nào?",
+    "answer": "Lỗi: RetryError[<Future at 0x11656b320 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "6. Âm nhạc giao hưởng mang lại những tác dụng gì đối với trí tuệ và trong trị liệu y tế?",
+    "answer": "Lỗi: RetryError[<Future at 0x116569790 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "7. Theo Luật Doanh nghiệp 2020, doanh nghiệp được định nghĩa là một tổ chức như thế nào?",
+    "answer": "Lỗi: RetryError[<Future at 0x116593770 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "8. Dựa trên giới hạn trách nhiệm của chủ sở hữu, bộ môn Kinh tế vi mô phân chia doanh nghiệp thành 3 loại hình chính nào?",
+    "answer": "Lỗi: RetryError[<Future at 0x116568140 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "9. Sự khác biệt về trách nhiệm đối với các khoản nợ giữa công ty trách nhiệm hữu hạn và công ty hợp danh là gì?",
+    "answer": "Lỗi: RetryError[<Future at 0x115be01d0 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "10. Trong chế độ trách nhiệm vô hạn, nếu doanh nghiệp không đủ tài sản trả nợ khi phá sản, chủ sở hữu phải chịu trách nhiệm ra sao?",
+    "answer": "Lỗi: RetryError[<Future at 0x116593ec0 state=finished raised CircuitBreakerError>]",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "11. Nhóm công ty là gì và nó bao gồm những hình thức tổ chức nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "12. Marvin Bower định nghĩa khái niệm \"văn hóa doanh nghiệp\" là gì?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "13. Mục tiêu cụ thể vào năm 2045 của việc hoàn thiện cấu trúc hệ thống pháp luật Việt Nam là gì?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "14. Hệ thống pháp luật Việt Nam được cấu trúc theo thứ bậc từ các nguồn văn bản quy phạm pháp luật và những nguồn bổ trợ nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "15. Khi có các quy định khác nhau về cùng một vấn đề, nguyên tắc ưu tiên áp dụng quy phạm pháp luật được thực hiện ra sao?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "16. Quy phạm pháp luật công và quy phạm pháp luật tư có sự khác biệt gì trong cách thiết kế khung pháp lý?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "17. Những bộ luật và luật nào được xác định là có tính nền tảng, làm trung tâm của hệ thống pháp luật?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "18. Ủy ban Thường vụ Quốc hội và Chính phủ có thể ban hành văn bản điều chỉnh luật trong những tình huống đặc biệt nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "19. Các khoản nợ trong lĩnh vực xây dựng chủ yếu phát sinh từ những nguyên nhân và giữa những chủ thể nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "20. Khách hàng cần chuẩn bị những tài liệu, chứng từ gì trước khi làm việc với luật sư để thu hồi nợ xây dựng?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "21. Theo quy trình của TNTP, sau khi tiếp nhận thông tin, luật sư sẽ triển khai các bước công việc ban đầu như thế nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "22. Theo Luật Đấu thầu 2023, Chủ đầu tư, Nhà thầu chính và Nhà thầu phụ được định nghĩa như thế nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "23. Tại sao việc lập Biên bản đối chiếu công nợ định kỳ lại giữ vai trò quan trọng trong cả kế toán và hoạt động thu hồi nợ?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "24. Để kiểm tra năng lực tài chính của bên nợ khi thông tin không công khai, doanh nghiệp có thể áp dụng biện pháp nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "25. Vì sao doanh nghiệp cần phải tổng hợp và phân loại các khoản nợ theo mức độ ưu tiên trước khi thu hồi?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "26. Khách hàng là tổ đội thi công hoặc cai thầu nhỏ lẻ thường gặp áp lực trực tiếp nào lớn nhất khi bị tổng thầu nợ tiền?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "27. Đối với nhóm khách hàng ưu tiên thương lượng (Nhóm 1), họ mong muốn quá trình thu hồi nợ sẽ diễn ra như thế nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "28. Ám ảnh lớn nhất của nhóm khách hàng có nỗi lo pháp lý (Nhóm 2) liên quan đến hồ sơ và biên bản nghiệm thu là gì?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "29. Vì sao khách hàng đang chịu áp lực dòng tiền (Nhóm 3) lại muốn ép bên nợ ký xác nhận công nợ?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "30. Khách hàng cạn vốn (Nhóm 3) thường có xu hướng tìm kiếm hình thức tính phí dịch vụ luật sư như thế nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "31. Nhóm khách hàng muốn áp dụng biện pháp mạnh (Nhóm 4) thường tìm kiếm hướng xử lý khẩn cấp khi bên nợ có những dấu hiệu gì?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "32. Đề án chuyển đổi số đặt mục tiêu đến năm 2026 sẽ áp dụng mô hình thông tin công trình (BIM) bắt buộc đối với loại dự án nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "33. Đến năm 2030, có bao nhiêu phần trăm các dự án đầu tư xây dựng hạ tầng mới dự kiến sẽ áp dụng các công nghệ như AI, IoT, GIS và BIM?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "34. Bộ Xây dựng sẽ rà soát và sửa đổi các quy định pháp luật nào để hợp thức hóa giá trị của dữ liệu điện tử và hồ sơ số?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "35. Trong lĩnh vực giao thông, nền tảng số sẽ số hóa, quản trị tập trung những dữ liệu nền tảng của các loại hình hình giao thông nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "36. Trung tâm điều hành hạ tầng thông minh (IOC) của Bộ Xây dựng có khả năng thực hiện những chức năng cảnh báo và điều hành gì?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "37. Nguồn kinh phí để thực hiện Đề án chuyển đổi số trong xây dựng được ưu tiên huy động và triển khai qua những hình thức nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "38. Trong hợp tác quốc tế về hạ tầng xây dựng, Việt Nam ưu tiên thu hút đầu tư nước ngoài (FDI, ODA, PPP) vào các lĩnh vực cụ thể nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "39. Hồ sơ của khoản chi thực hiện nhiệm vụ giáo dục quốc phòng, an ninh để được tính vào chi phí được trừ bao gồm những gì?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "40. Để khoản chi cho hoạt động giáo dục, đào tạo nghề nghiệp cho người lao động được hợp lệ, doanh nghiệp cần lưu giữ những loại giấy tờ nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "41. Khi tài trợ cho giáo dục, y tế hoặc làm nhà tình nghĩa, biên bản xác nhận tài trợ yêu cầu bắt buộc phải có chữ ký của những bên nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "42. Các doanh nghiệp thực hiện giảm phát thải khí nhà kính nhằm trung hòa các-bon cần chuẩn bị hồ sơ gì để được ghi nhận chi phí?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "43. Thời điểm xác định doanh thu tính thuế thu nhập doanh nghiệp đối với hoạt động xây dựng, lắp đặt được quy định là thời điểm nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "44. Doanh thu tính thuế thu nhập doanh nghiệp của chuyển nhượng chứng khoán phái sinh (hợp đồng tương lai) được tính toán theo công thức nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "45. Nếu hợp đồng thầu xây dựng có bao thầu máy móc mà không bóc tách được riêng rẽ từng giá trị, thì áp dụng tỷ lệ % thuế TNDN là bao nhiêu?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "46. Các ngành động vật phổ biến nhất mà con người biết đến đã xuất hiện hóa thạch mạnh mẽ vào thời kỳ nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "47. Những đặc điểm sinh học cốt lõi nào giúp phân biệt động vật với vi khuẩn và thực vật?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "48. Quá trình phát triển của hợp tử ở động vật trải qua giai đoạn hình cầu rỗng được gọi là gì?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "49. Hóa thạch động vật cổ nhất có khả năng là loài bọt biển đã được tìm thấy ở đâu và cách đây khoảng bao nhiêu triệu năm?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  },
+  {
+    "question": "50. Hệ thống phân loại sinh vật học ban đầu của Carolus Linnaeus chia động vật ra thành những lớp (class) nào?",
+    "answer": "⚠️ Câu hỏi bị hủy.",
+    "context_count": 0,
+    "contexts": []
+  }
+]
